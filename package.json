@@ -1,0 +1,27 @@
+{
+  "name": "trello-connector",
+  "version": "1.0.0",
+  "description": "used to insert cards onto a trello board",
+  "main": "index.js",
+  "dependencies": {
+    "express": "^4.15.3",
+    "google-auth-library": "^0.10.0",
+    "google-spreadsheet": "^2.0.4",
+    "googleapis": "^19.0.0",
+    "moment": "^2.18.1",
+    "no-config": "^1.1.2",
+    "node-schedule": "^1.2.3",
+    "redis": "^2.7.1",
+    "simply-trello": "0.0.9",
+    "trello": "^0.7.0",
+    "xoauth2": "^1.2.0"
+  },
+  "devDependencies": {
+    "jasmine-node": "^1.14.5"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "author": "steve taylor",
+  "license": "ISC"
+}
