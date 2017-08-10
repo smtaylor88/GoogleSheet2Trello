@@ -1,2 +1,4 @@
 \node_modules
 \credentials
+client_secret.json
+google-generated-creds.json
