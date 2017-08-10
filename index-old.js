@@ -3,6 +3,7 @@ var schedule = require('node-schedule');
 var GoogleSpreadsheet = require('google-spreadsheet');
 var async = require('async');
 
+
 var APP = {
   scheduleJob: function() {
     // This rule is standard cron syntax for once per minute.
