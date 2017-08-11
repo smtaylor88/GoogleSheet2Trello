@@ -4,6 +4,7 @@
   "description": "used to insert cards onto a trello board",
   "main": "index.js",
   "dependencies": {
+    "config": "^1.26.1",
     "express": "^4.15.3",
     "google-auth-library": "^0.10.0",
     "google-spreadsheet": "^2.0.4",

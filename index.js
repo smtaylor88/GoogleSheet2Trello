@@ -1,10 +1,11 @@
 'use strict'
 
 // Reference the node-schedule npm package.
-var schedule = require('node-schedule');
-var GoogleSpreadsheet = require('google-spreadsheet');
-var async = require('async');
-var mymail = require('./mail');
+var schedule = require('node-schedule')
+var GoogleSpreadsheet = require('google-spreadsheet')
+var async = require('async')
+var mymail = require('./mail')
+var config = require('config')
 
 var APP = {
   scheduleJob: function() {
@@ -12,24 +13,27 @@ var APP = {
     // See http://stackoverflow.com/a/5398044/1252653
     var rule = '* * * * *'
 
+    var someText = config.get('siteTitle')
+    console.log(process.env.NODE_ENV + ' : ' + someText)
+
     // Kick off the job
     var job = schedule.scheduleJob(rule, function() {
-      console.log('ping! ' + new Date().toLocaleTimeString());
-      AnyLesSchwabChangeRequests();
-    });
+      console.log('ping! ' + new Date().toLocaleTimeString())
+      AnyNewChangeRequests()
+    })
   },
 
   init: function() {
-    APP.scheduleJob();
+    APP.scheduleJob()
   }
 };
 
 (function(){
-  APP.init();
-})();
+  APP.init()
+})()
 
 
-function AnyLesSchwabChangeRequests() {
+function AnyNewChangeRequests() {
     // spreadsheet key is the long id in the sheets URL 
     var doc = new GoogleSpreadsheet('14t9KeL1mVSAbSXBGQmez0_wQeoQvQzpvf92omsIdsSQ');
     var sheet;
