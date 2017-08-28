@@ -45,7 +45,7 @@ function AnyNewChangeRequests() {
     // spreadsheet key is the long id in the sheets URL 
     var doc = new GoogleSpreadsheet('14t9KeL1mVSAbSXBGQmez0_wQeoQvQzpvf92omsIdsSQ');  
     var sheet;
-    var creds = require('../credentials/google-generated-creds.json');
+    var creds = require('../credentials/googlesheetsaccess.json');
     var requestId;
 
     var trello = {
@@ -57,7 +57,7 @@ function AnyNewChangeRequests() {
         storenum: "1234", location: "Fresno, CA", type: "ADD", duedate: "", 
         imagename: "", imageurl: "", filename: "", fileurl: ""
     };
-
+ 
     var lesSchwabListId = "591dd13309f95b642a64fc9b" // les schwab content - in house 
     var Trello = require("trello");
     var trelloapi = new Trello(trello.key, trello.token);

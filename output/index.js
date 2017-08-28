@@ -37,7 +37,7 @@ function AnyNewChangeRequests() {
     // spreadsheet key is the long id in the sheets URL 
     var doc = new GoogleSpreadsheet('14t9KeL1mVSAbSXBGQmez0_wQeoQvQzpvf92omsIdsSQ');
     var sheet;
-    var creds = require('../credentials/google-generated-creds.json');
+    var creds = require('../credentials/googlesheetsaccess.json');
     var requestId;
     var trello = {
         CustomLabels: [],

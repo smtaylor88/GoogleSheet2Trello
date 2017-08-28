@@ -1,5 +1,2 @@
 \node_modules
 \credentials
-\typescriptproj
-client_secret.json
-google-generated-creds.json
