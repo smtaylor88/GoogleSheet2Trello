@@ -40,4 +40,4 @@ function sendOauth2Mail(mailOptions) {
     });
 }
 exports.sendOauth2Mail = sendOauth2Mail;
-//# sourceMappingURL=CaptiveSignsMail.js.map
+//# sourceMappingURL=captivesignsmail.js.map

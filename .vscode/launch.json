@@ -17,7 +17,7 @@
             "type": "node",
             "request": "launch",
             "name": "Launch Index JS",
-            "program": "${workspaceRoot}/output/index.js",
+            "program": "${workspaceRoot}/src/index.js",
             "protocol": "inspector",
             "smartStep": true,
             // "stopOnEntry": true,

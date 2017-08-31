@@ -2,9 +2,9 @@ import nodemailer = require('nodemailer');
 import xoauth2 = require('xoauth2');  // no typescript definition file exists
 
     export interface mailAttributes {
-        from: string
-        to: string
-        subject: string        
+        from: string,
+        to: string,
+        subject: string,        
         text: string
     }
 

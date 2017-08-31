@@ -1,18 +1,38 @@
 'use strict'
 
 // Reference the node-schedule npm package.
-var schedule = require('node-schedule')
-var GoogleSpreadsheet = require('google-spreadsheet') // no typescript definition file exists
-var async = require('async')
-import {mailAttributes, sendSMTPMail, sendOauth2Mail} from "./CaptiveSignsMail"
+import * as schedule from 'node-schedule'
+import * as googleSheet from 'google-spreadsheet' // no typescript definition file exists
+import * as async from 'async'
+import * as CSMail from "./captivesignsmail"
 
-let mailOpts = {
-    Text: 'The following message is from Steves Node JS process', 
-    From: 'captivesigns@gmail.com', 
-    To:   'smtaylor88@gmail.com', 
-    Subject: 'GSheets to Trello Process - Info'}
+const mailOpts:CSMail.mailAttributes = {
+    from: 'captivesigns@gmail.com', 
+    to:   'smtaylor88@gmail.com', 
+    subject: 'GSheets to Trello Process - Info',
+    text: 'The following message is from Steves Node JS process'}
 
-const useOAuth2forGMail:boolean = false
+const USE_OAUTH2_FOR_GMAIL:boolean = true
+const GSHEET_DOC_ID = '14t9KeL1mVSAbSXBGQmez0_wQeoQvQzpvf92omsIdsSQ' // spreadsheet key is the long id in the sheets URL 
+const CREDS_URI = '../credentials/googlesheetsaccess.json'
+const TRELLO_LIST_ID = '591dd13309f95b642a64fc9b' // les schwab content - in house 
+const QUERY_VAL = 'totrello=""'  // search the spreadsheet for this value if defined
+let requestId: string = ''
+let sheet = null;
+let creds = require(CREDS_URI)  // import the credentials from file
+
+// values to be passed into trello
+let trello = {
+    CustomLabels: [],
+    key: "50c2a05152cfe651a924f13bbe60b427",
+    token: "e3e32bb7307a6162f41106c6514f73a44e792fa05904226fb419694a8dd79799", // (mike@captivesigns.com)
+    name: "Requestor Name",
+    description: "Change Description",
+    storenum: "1234", location: "Fresno, CA", type: "ADD", duedate: "", 
+    imagename: "", imageurl: "", filename: "", fileurl: ""
+};
+
+
 // var config = require('config') // no typescript definition file exists
 
 var APP = {
@@ -25,7 +45,7 @@ var APP = {
     // console.log(process.env.NODE_ENV + ' : ' + someText)
 
     // Kick off the job
-    var job = schedule.scheduleJob(rule, function() {
+    let job = schedule.scheduleJob(rule, function() {
       console.warn('ping! ' + new Date().toLocaleTimeString())
       AnyNewChangeRequests()
     })
@@ -43,29 +63,15 @@ var APP = {
 
 function AnyNewChangeRequests() {
     // spreadsheet key is the long id in the sheets URL 
-    var doc = new GoogleSpreadsheet('14t9KeL1mVSAbSXBGQmez0_wQeoQvQzpvf92omsIdsSQ');  
-    var sheet;
-    var creds = require('../credentials/googlesheetsaccess.json');
-    var requestId;
-
-    var trello = {
-        CustomLabels: [],
-        key: "50c2a05152cfe651a924f13bbe60b427",
-        token: "e3e32bb7307a6162f41106c6514f73a44e792fa05904226fb419694a8dd79799", // (mike@captivesigns.com)
-        name: "Requestor Name",
-        description: "Change Description",
-        storenum: "1234", location: "Fresno, CA", type: "ADD", duedate: "", 
-        imagename: "", imageurl: "", filename: "", fileurl: ""
-    };
+    let doc = new googleSheet(GSHEET_DOC_ID)
  
-    var lesSchwabListId = "591dd13309f95b642a64fc9b" // les schwab content - in house 
-    var Trello = require("trello");
-    var trelloapi = new Trello(trello.key, trello.token);
-    var newTrelloCard;
+    let Trello = require("trello");
+    let trelloapi = new Trello(trello.key, trello.token);
+    let newTrelloCard = null;
 
-    GSheetData();
+    //GSheetData();
 
-    function GSheetData() {
+    //function GSheetData() {
         async.series([
 
             // authenticate against the Google oAuth server using Nodejs special credentails
@@ -73,10 +79,13 @@ function AnyNewChangeRequests() {
                 // see notes below for authentication instructions! 
                 doc.useServiceAccountAuth(creds, step)
                 console.log("Step 1 - Authenticated Google Spreadsheet")
-                if (useOAuth2forGMail) {
-                    sendOauth2Mail({subject: mailOpts.Subject, from: mailOpts.From, to: mailOpts.To, text: mailOpts.Text})
+
+                if (USE_OAUTH2_FOR_GMAIL) {
+                    // CSMail.sendOauth2Mail({subject: mailOpts.Subject, from: mailOpts.From, to: mailOpts.To, text: mailOpts.Text})
+                    CSMail.sendOauth2Mail(mailOpts)
                 } else {
-                    sendSMTPMail({subject: mailOpts.Subject, from: mailOpts.From, to: mailOpts.To, text: mailOpts.Text})
+                    // CSMail.sendSMTPMail({subject: mailOpts.Subject, from: mailOpts.From, to: mailOpts.To, text: mailOpts.Text})
+                    CSMail.sendSMTPMail(mailOpts)
                 }
             },
 
@@ -95,7 +104,7 @@ function AnyNewChangeRequests() {
 
             function(step) {
                 // get the specified rows from the spreadsheet - there may be more than 1, but just process a single row per exectuion
-                sheet.getRows({query: 'totrello=""'}, function( err, rows ){
+                sheet.getRows({query: QUERY_VAL}, function( err, rows ){
                     if( rows.length > 0 ) {
                         // the row is an object with keys set by the column headers 
                         console.log('Latest Change created: %s', rows[0].requestdate);
@@ -117,13 +126,15 @@ function AnyNewChangeRequests() {
                         trello.filename = rows[0].file1;
                         trello.fileurl = rows[0].file1url;
                     } else {
-                        mailOpts.Text = "No change requests to process! (" + new Date() + ")";
-                        if (useOAuth2forGMail) {
-                            sendOauth2Mail({subject: mailOpts.Subject, from: mailOpts.From, to: mailOpts.To, text: mailOpts.Text})
+                        mailOpts.text = "No change requests to process! (" + new Date() + ")";
+                        if (USE_OAUTH2_FOR_GMAIL) {
+                            CSMail.sendOauth2Mail(mailOpts)
+                            // CSMail.sendOauth2Mail({subject: mailOpts.Subject, from: mailOpts.From, to: mailOpts.To, text: mailOpts.Text})
                         } else {
-                            sendSMTPMail({subject: mailOpts.Subject, from: mailOpts.From, to: mailOpts.To, text: mailOpts.Text})
+                            CSMail.sendSMTPMail(mailOpts)
+                            // CSMail.sendSMTPMail({subject: mailOpts.Subject, from: mailOpts.From, to: mailOpts.To, text: mailOpts.Text})
                         }
-                        return console.warn(mailOpts.Text);
+                        return console.warn(mailOpts.text);
                     }
                     step();
                 })
@@ -132,7 +143,7 @@ function AnyNewChangeRequests() {
             function(step) {
                 // add a new trello card to the specified List (on some board)
                 trelloapi.addCard('Change Request (' + trello.name + ') ( via appsheet)', 
-                    trello.description, lesSchwabListId,
+                    trello.description, TRELLO_LIST_ID,
                     function (error, trelloCard) {
                         if (error) {
                             console.error('Could not add card:', error);
@@ -195,4 +206,3 @@ function AnyNewChangeRequests() {
             return trello;
         });
     };
-}

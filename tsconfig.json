@@ -1,12 +1,13 @@
 {
     "compilerOptions": {
         "target": "es6",
-        "outDir": "./output",
+        // "outDir": "./output",
         "allowJs": true,
         "module": "commonjs",
-        "sourceMap": true
-        // "noImplicitAny": true,
-        // "noImplicitReturns": true
+        "sourceMap": true,
+        "strictNullChecks": true,
+        "noImplicitAny": false
+        // "noImplicitReturns": true,
     },
     "include": [
         "./src/**/*"
