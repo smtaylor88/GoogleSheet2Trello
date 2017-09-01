@@ -12,13 +12,15 @@ const mailOpts:CSMail.mailAttributes = {
     subject: 'GSheets to Trello Process - Info',
     text: 'The following message is from Steves Node JS process'}
 
+
+const GSHEET_SHEET_NAME:string = 'Log'
 const USE_OAUTH2_FOR_GMAIL:boolean = true
-const GSHEET_DOC_ID = '14t9KeL1mVSAbSXBGQmez0_wQeoQvQzpvf92omsIdsSQ' // spreadsheet key is the long id in the sheets URL 
-const CREDS_URI = '../credentials/googlesheetsaccess.json'
-const TRELLO_LIST_ID = '591dd13309f95b642a64fc9b' // les schwab content - in house 
-const QUERY_VAL = 'totrello=""'  // search the spreadsheet for this value if defined
+const GSHEET_DOC_ID:string = '14t9KeL1mVSAbSXBGQmez0_wQeoQvQzpvf92omsIdsSQ' // spreadsheet key is the long id in the sheets URL 
+const CREDS_URI:string = '../credentials/googlesheetsaccess.json'
+const TRELLO_LIST_ID:string = '591dd13309f95b642a64fc9b' // les schwab content - in house 
+const QUERY_VAL:string = 'totrello=""'  // search the spreadsheet for this value if defined
 let requestId: string = ''
-let sheet = null;
+let sheet:{}
 let creds = require(CREDS_URI)  // import the credentials from file
 
 // values to be passed into trello
@@ -91,13 +93,14 @@ function AnyNewChangeRequests() {
 
             // open the spreadsheet document and it's 1st worksheet and show some identifying details
             function(step) {
-            doc.getInfo(function(err, info) {
+            doc.getInfo(function(err:{}, info:{}) {
                     if (err) {
-                        return console.error(err);
+                        return console.error(err)
                     }
-                    console.log('Loaded SpreadSheet: %s by %s', info.title, info.author.email);
-                    sheet = info.worksheets[0];
-                    console.log('Worksheet Name: %s  (Size: %s Rows x %s Columns)', sheet.title, sheet.rowCount, sheet.colCount);
+                    console.log('Loaded SpreadSheet: %s by %s', info.title, info.author.email)
+                    sheet = info.worksheets.GSHEET_SHEET_NAME
+                    console.log(`Worksheet Name: ${sheet.title}`);
+                    // console.log('Worksheet Name: %s  (Size: %s Rows x %s Columns)', sheet.title, sheet.rowCount, sheet.colCount);
                     step();
                 });
             },
